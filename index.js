@@ -76,17 +76,36 @@ async function insertMovie(title, year, genre, director) {
   }
 }
 
+// Function to remove duplicates
+async function removeDuplicates() {
+  try {
+    const deleteQuery = `
+      DELETE FROM movies 
+      WHERE movie_id NOT IN (
+          SELECT MIN(moive_id)
+          FROM moives
+          GROUP BY title, release_year, genre, director
+          );`;
+      await pool.query(deleteQuery);
+      console.log('Duplicates removed from the movies table.');
+  } catch (error) {
+    console.error('Error removing duplicates: ', error);
+  }
+  
+}
+
 /**
  * Prints all movies in the database to the console
  */
 async function displayMovies() {
   // TODO: Add code to retrieve and print all movies from the Movies table
+  await removeDuplicates();
   const query = `SELECT * FROM movies;`;
   try {
     const res = await pool.query(query);
     console.table(res.rows);
-  } catch (err) {
-    console.error('Error reteriving movies:', err);
+  } catch (error) {
+    console.error('Error reteriving movies:', error);
   }
 }
 
@@ -98,24 +117,40 @@ async function displayMovies() {
  */
 async function updateCustomerEmail(customerId, newEmail) {
   // TODO: Add code to update a customer's email address
-  const query = `
-    UPDATE customers
-    SET email = $1
-    WHERE customer_id = $2
-    RETURNING *;
-    `;
-
   try {
-    const res = await pool.query(query, [newEmail, customer_id]);
-    if (res.rowCount > 0) {
-      console.log('Customer Email Updtated:', res.rows[0]);
+    const query =  `UPDATE customers SET email = $1 WHERE customer_id = $2`;
+    const values = [newEmail, customerId];
+
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      console.log(`No customer found with ID ${customerId}.`);
     } else {
-      console.log('Customer Not Found:');
+      console.log(`Customer with ID ${customerId} updated successfully. `);
     }
-  } catch (err) {
-    console.log('Error Updating Email:', err);
+  } catch (error) {
+    console.error(`Error Updating email:`, error);
   }
 }
+//   const query = `
+//     UPDATE customers
+//     SET email = $1
+//     WHERE customer_id = $2
+//     RETURNING *;
+//     `;
+//   const values = [newEmail, customerId]
+
+//   try {
+//     const res = await pool.query(query, [newEmail, customer_id]);
+//     if (res.rowCount > 0) {
+//       console.log('Customer Email Updtated:', res.rows[0]);
+//     } else {
+//       console.log('Customer Not Found:');
+//     }
+//   } catch (err) {
+//     console.log('Error Updating Email:', err);
+//   }
+// }
 
 /**
  * Removes a customer from the database along with their rental history.
@@ -125,7 +160,7 @@ async function updateCustomerEmail(customerId, newEmail) {
 async function removeCustomer(customerId) {
   // TODO: Add code to remove a customer and their rental history
   const deleteRentalsQuery = `DELETE FROM rentals WHERE customer_id = $1;`;
-  const deleteCustomerQuery = ` DELETE FORM customers WHERE customer_id = $1 RETURNING *;`;
+  const deleteCustomerQuery = ` DELETE FROM customers WHERE customer_id = $1 RETURNING *;`;
 
   try {
     await pool.query(deleteRentalsQuery, [customerId]);
