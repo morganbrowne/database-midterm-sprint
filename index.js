@@ -82,8 +82,8 @@ async function removeDuplicates() {
     const deleteQuery = `
       DELETE FROM movies 
       WHERE movie_id NOT IN (
-          SELECT MIN(moive_id)
-          FROM moives
+          SELECT MIN(movie_id)
+          FROM movies
           GROUP BY title, release_year, genre, director
           );`;
       await pool.query(deleteQuery);

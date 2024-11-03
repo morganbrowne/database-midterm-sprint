@@ -82,8 +82,8 @@ VALUES
 
 -- Remove duplicate rows from the movies table
 DELETE FROM movies
-WHERE id NOT IN (
-    SELECT MIN(id)
+WHERE movie_id NOT IN (
+    SELECT MIN(movie_id)
     FROM movies
     GROUP BY title, release_year, genre, director
 );
