@@ -1,0 +1,7 @@
+The movie rental database meets 3Nf by ensuring each attributes depend on it's primary key.
+
+For the movies table, movie_id is the primary key, and all its colums describe the movie. 
+
+The Customers table has customer_id for the primary key and also has colums to describe the customer table.
+
+The rentals tabel primary key is rentals_id, and ot links both movie_id and customer_id allowing it to track movie rentals from different customers. 

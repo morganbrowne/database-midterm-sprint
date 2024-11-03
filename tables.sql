@@ -1,7 +1,5 @@
 \c movierental;
 
--- Clear the tables before inserting new data
---TRUNCATE movies, customers, rentals RESTART IDENTITY CASCADE;
 
 -------------------
 -- Creating Tables 
